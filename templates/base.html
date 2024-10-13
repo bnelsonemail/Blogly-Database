@@ -15,28 +15,25 @@
     <title>{% block title %} Blogly {% endblock title %}</title>
   </head>
   <body class="bg-gray-400 min-h-screen flex flex-col">
-    <header class="bg-black p-4">
-        <nav class="flex justify-between items-center">
-            <a href="/" class="text-white text-xl font-bold hover:bg-red-500 py-2 px-4 rounded transition-colors duration-300 ease-in-out cursor-pointer">
-                Blogly
-              </a>
-            </div>
-            <div class="flex space-x-4">
-              
-              <a href="/page-1" class="text-white hover:bg-red-500 py-2 px-4 rounded transition-colors duration-300 ease-in-out cursor-pointer">
-                Page 1
-              </a>
-              <a href="/page-2" class="text-white hover:bg-red-500 py-2 px-4 rounded transition-colors duration-300 ease-in-out cursor-pointer">
-                Page 2
-              </a>
-        </nav>
-
+    <!-- Sticky Header -->
+    <header class="bg-black p-4 sticky top-0 z-10">
+      <nav class="flex justify-between items-center">
+        <a href="/" class="text-white text-xl font-bold hover:bg-red-500 py-2 px-4 rounded transition-colors duration-300 ease-in-out cursor-pointer">
+          Blogly
+        </a>
+      </nav>
     </header>
+
+    <!-- Main Content -->
     <main id="main" class="flex-grow">
-    {% block content %}  {% endblock content %}
+      {% block content %} 
+      {% endblock content %}
     </main>
+
+    <!-- Footer -->
     <footer class="bg-black p-4 text-center text-white">
-        &copy; {{ current_year }} Blogly. All rights reserved.
-      </footer>
+      &copy; {{ current_year }} Blogly. All rights reserved.
+    </footer>
   </body>
 </html>
+

@@ -25,6 +25,8 @@ class User(db.Model):
                            nullable=False)
     last_name = db.Column(db.String(20),
                           nullable=False)
+    birthdate = db.Column(db.String(10),
+                          nullable=False)
     image_url = db.Column(db.String(255), nullable=True)
 
     def __repr__(self):
@@ -33,6 +35,7 @@ class User(db.Model):
         u = self
         try:
             return (f"<User id={u.id} first_name={u.first_name} "
-                    f"last_name={u.last_name} image_url={u.image_url}>")
+                    f"last_name={u.last_name} birthdate={u.birthdate} "
+                    f"image_url={u.image_url}>")
         except DetachedInstanceError:
             return "<Detached User Error>"
