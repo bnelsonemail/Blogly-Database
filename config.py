@@ -15,6 +15,7 @@ class Config:
     """Base configuration."""
     SECRET_KEY = os.environ.get('SECRET KEY', 'default_secret_key')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
 
 class DevelopmentConfig(Config):
@@ -24,7 +25,6 @@ class DevelopmentConfig(Config):
     FLASK_ENV = 'development'
     USE_RELOADER = True
     SQLALCHEMY_ECHO = True  # print all SQL statements to the console / logs.
-    SQLALCHEMY_DATABASE_URI = 'postgresql:///blogly'
 
 
 class ProductionConfig(Config):
@@ -32,7 +32,6 @@ class ProductionConfig(Config):
     DEBUG = False
     FLASK_ENV = 'production'
     SQLALCHEMY_ECHO = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql:///blogly'
 
 
 class TestingConfig(Config):
@@ -41,8 +40,6 @@ class TestingConfig(Config):
     FLASK_ENV = 'testing'
     DEBUG_TB_HOSTS = 'dont-show-debug-toolbar'
     SQLALCHEMY_ECHO = False  # can set to True if needed in debugging.
-    # In-memory SQLite DB for testing
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
 
 
 # Initialize the logger

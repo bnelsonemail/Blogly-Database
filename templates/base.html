@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon" />
+
+    <!-- Tailwind Link -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <title>{% block title %} Blogly {% endblock title %}</title>
+  </head>
+  <body class="bg-gray-400 min-h-screen flex flex-col">
+    <header class="bg-black p-4">
+        <nav class="flex justify-between items-center">
+            <a href="/" class="text-white text-xl font-bold hover:bg-red-500 py-2 px-4 rounded transition-colors duration-300 ease-in-out cursor-pointer">
+                Blogly
+              </a>
+            </div>
+            <div class="flex space-x-4">
+              
+              <a href="/page-1" class="text-white hover:bg-red-500 py-2 px-4 rounded transition-colors duration-300 ease-in-out cursor-pointer">
+                Page 1
+              </a>
+              <a href="/page-2" class="text-white hover:bg-red-500 py-2 px-4 rounded transition-colors duration-300 ease-in-out cursor-pointer">
+                Page 2
+              </a>
+        </nav>
+
+    </header>
+    <main id="main" class="flex-grow">
+    {% block content %}  {% endblock content %}
+    </main>
+    <footer class="bg-black p-4 text-center text-white">
+        &copy; {{ current_year }} Blogly. All rights reserved.
+      </footer>
+  </body>
+</html>

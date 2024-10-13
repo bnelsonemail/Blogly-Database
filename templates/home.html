@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% block title %} Blogly Welcome Page {% endblock title %}
+
+{% block content %}
+<div class="flex flex-col items-center min-h-screen bg-gray-400" >
+    <h1 class="text-4xl font-bold text-black pt-8">Welcome to the Blogly Hompage!!</h1>
+    {% for user in users %}
+    <li>{{ user.first_name }}</li>
+    {% endfor %}
+
+{% endblock content %}
