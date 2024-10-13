@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}User Detail Page{% endblock title %}
+{% block contents %}
+
+<h1>{{ user.last_name }}, {{ user.first_name }}</h1>
+<p>ID: {{ user.id }}</p>
+<p>birthdate: {{ user.birthdate }}</p>
+<p>Profile Pic: {{ user.image_url }}</p>
+<a href="/">Go back</a>
+
+{% endblock contents %}

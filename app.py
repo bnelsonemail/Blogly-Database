@@ -2,11 +2,12 @@
 
 import logging
 import os
-from flask import Flask, render_template  # redirect, flash, session
+from datetime import datetime
+from flask import Flask, render_template, request, redirect, flash
 # from flask_sqlalchemy import SQLAlchemy
 from flask_debugtoolbar import DebugToolbarExtension
 from dotenv import load_dotenv
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from models import db, connect_db, User
 
 
@@ -59,9 +60,10 @@ def home():
     """Welcome page.
 
     Returns:
-        _type_: Welcome greeting to page.
+        _type_: Show all users in database.
     """
-    return render_template('home.html')
+    users = User.query.all()  # Fetch all users from the database
+    return render_template('home.html', users=users)
 
 
 # Custom CLI command to create database tables
@@ -82,6 +84,38 @@ def test_db():
         return "Database connection successful!"
     except SQLAlchemyError as e:
         return f"Error: {str(e)}"
+
+
+@app.route("/", methods=["POST"])
+def add_user():
+    """Add user and redirect to details."""
+    first_name = request.form['first_name'].lower()
+    last_name = request.form['last_name'].lower()
+    birthdate_str = request.form['birthdate']  # string from form submission
+    image_url = request.form['image_url']
+
+    try:
+        birthdate = datetime.strptime(birthdate_str, '%Y-%m-%d').date()
+    except ValueError:
+        flash("Invalid date format.  Please use YYY-MM-DD.", 'error')
+        return redirect('/')
+
+    user = User(first_name=first_name, last_name=last_name,
+                birthdate=birthdate, image_url=image_url)
+
+    try:
+        # Add new user to the session and commit the changes
+
+        db.session.add(user)
+        db.session.commit()
+        flash(f"User {first_name} {last_name} added successfully!", 'success')
+        return redirect(f"/{user.id}")
+    except IntegrityError:
+        # Rollback the session to avoid partial changes
+        db.session.rollback()
+        flash(f"Error: The name '{first_name}' '{last_name}' is already in "
+              f"use. Please choose another one.", 'error')
+        return redirect('/error')
 
 
 if __name__ == '__main__':

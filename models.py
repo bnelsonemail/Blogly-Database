@@ -25,7 +25,7 @@ class User(db.Model):
                            nullable=False)
     last_name = db.Column(db.String(20),
                           nullable=False)
-    birthdate = db.Column(db.String(10),
+    birthdate = db.Column(db.Date,
                           nullable=False)
     image_url = db.Column(db.String(255), nullable=True)
 
