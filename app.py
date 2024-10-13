@@ -118,5 +118,27 @@ def add_user():
         return redirect('/error')
 
 
+@app.route("/<int:user_id>")
+def show_user(user_id):
+    """Show user info on a single page."""
+    # user = {
+    #     'id': user_id,
+    #     'first_name': 'test_firstname',
+    #     'last_name': 'test_lastname',
+    #     'birthdate': '1990-01-01',
+    #     'image_url': 'null'
+    # }
+    user = User.query.get_or_404(user_id)
+    print(user)  # Debugging: print user details to console
+    flash(f"User: {user.first_name} {user.last_name}, ID: {user.id}")
+    return render_template("detail.html", user=user)
+
+
+@app.route("/test")
+def test_route():
+    """Test detail render with hard code data."""
+    return render_template("test.html")
+
+
 if __name__ == '__main__':
     app.run()

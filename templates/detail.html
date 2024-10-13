@@ -1,11 +1,19 @@
 {% extends "base.html" %}
+
 {% block title %}User Detail Page{% endblock title %}
-{% block contents %}
 
-<h1>{{ user.last_name }}, {{ user.first_name }}</h1>
-<p>ID: {{ user.id }}</p>
-<p>birthdate: {{ user.birthdate }}</p>
-<p>Profile Pic: {{ user.image_url }}</p>
-<a href="/">Go back</a>
+{% block content %}
+<div class="flex flex-col items-center">
+  <h1 class="text-4xl text-black font-bold text-black pt-20 mb-12"><u>User Detail Page</u></h1>
+  
+  <h1 class="text-3xl font-bold">{{ user.last_name | title }}, {{ user.first_name | title }}</h1>
+    <div class="text-xl">
+  <p>ID: {{ user.id }}</p>
+  <p>Birthdate: {{ user.birthdate }}</p>
+  <p class="mb-4">Profile Pic: <a href="{{ user.image_url }}">{{ user.image_url }}</a></p>
 
-{% endblock contents %}
+
+  <a type="button" class="bg-green-400 hover:bg-blue-400 py-2 px-4 rounded transition-colors duration-300 ease-in-out cursor-pointer" href="/">Take Me Home!</a>
+</div>
+</div>
+{% endblock content %}
