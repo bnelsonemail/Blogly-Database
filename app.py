@@ -151,7 +151,7 @@ def edit_user(user_id):
         user.update(
             first_name=request.form['first_name'],
             last_name=request.form['last_name'],
-            birthdate=request.form['birthdate'],
+            birthdate=birthdate,
             image_url=request.form['image_url']
         )
 
