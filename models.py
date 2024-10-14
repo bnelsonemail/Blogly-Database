@@ -39,3 +39,11 @@ class User(db.Model):
                     f"image_url={u.image_url}>")
         except DetachedInstanceError:
             return "<Detached User Error>"
+
+    def update(self, first_name, last_name, birthdate, image_url):
+        """Update the user's information."""
+        s = self
+        s.first_name = first_name.lower()
+        s.last_name = last_name.lower()
+        s.birthdate = birthdate
+        s.image_url = image_url

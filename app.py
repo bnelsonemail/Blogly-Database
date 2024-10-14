@@ -134,13 +134,37 @@ def show_user(user_id):
     return render_template("detail.html", user=user)
 
 
-# @app.route("/<int:user_id>/edit")
-# def edit_user(user_id):
-#     """Edit user info on a single page."""
-#     user = User.query.get_or_404(user_id)
-#     print(user)  # Debugging: print user details to console
-#     flash(f"User: {user.first_name} {user.last_name}, ID: {user.id}")
-#     return render_template("detail.html", user=user)
+@app.route("/<int:user_id>/edit")
+def edit_user(user_id):
+    """Edit user info on a single page."""
+    user = User.query.get_or_404(user_id)
+
+    if request.method == 'POST':
+        birthdate_str = request.form['birthdate']
+        try:
+            birthdate = datetime.strptime(birthdate_str, '%Y-%m-%d').date()
+        except ValueError:
+            flash('Invalid date format.  Please use YYY-MM-DD.', 'error')
+            return redirect(f"/user/{user_id}/edit")
+
+        # Use the method to upte the user
+        user.update(
+            first_name=request.form['first_name'],
+            last_name=request.form['last_name'],
+            birthdate=request.form['birthdate'],
+            image_url=request.form['image_url']
+        )
+
+        try:
+            db.session.commit()
+            flash('User updated successfully!', 'success')
+        except SQLAlchemyError:
+            db.session.rollback()
+            flash('An error occurred.  Please try again.', 'error')
+
+    print(user)  # Debugging: print user details to console
+    flash(f"User: {user.first_name} {user.last_name}, ID: {user.id}")
+    return render_template("detail.html", user=user)
 
 
 if __name__ == '__main__':
