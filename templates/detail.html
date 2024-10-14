@@ -8,12 +8,37 @@
   
   <h1 class="text-3xl font-bold">{{ user.last_name | title }}, {{ user.first_name | title }}</h1>
     <div class="text-xl">
-  <p>ID: {{ user.id }}</p>
-  <p>Birthdate: {{ user.birthdate }}</p>
-  <p class="mb-4">Profile Pic: <a href="{{ user.image_url }}">{{ user.image_url }}</a></p>
+  <p><b>ID:</b> {{ user.id }}</p>
+  <p><b>Birthdate:</b> {{ user.birthdate }}</p>
+  <p class="mb-4"><b>Profile Pic:</b> <a href="{{ user.image_url }}" class="hover:text-red-500 transition-colors duration-300 mb-12 ease-in-out cursor-pointer">{{ user.image_url }}</a></p>
 
 
   <a type="button" class="bg-green-400 hover:bg-blue-400 py-2 px-4 rounded transition-colors duration-300 ease-in-out cursor-pointer" href="/">Take Me Home!</a>
 </div>
 </div>
+
+{# **************** Below is the Edit Form *************** #}
+
+<div class="flex flex-col items-center">
+    <h2 class="text-3xl text-black font-bold text-black pt-20 mb-8">Edit User Details</h2>
+    <form action="/" method="POST">
+        <p class="text-xl text-black pt-4">
+          First Name: <input type="text" name="first_name" placeholder="{{ user.first_name | title }}" />
+        </p>
+        <p class="text-xl text-black pt-2">Last Name: <input type="text" name="last_name" placeholder="{{ user.last_name | title }}" /></p>
+        <p class="text-xl text-black pt-2 mb-1">
+          Birthdate: <input type="date" name="birthdate" placeholder="YYYY-MM-DD" />
+        </p>
+        <p class="text-xl text-black pt-2 mb-4">Profile Pic: 
+            <input type="text" name="image_url" placeholder="Enter Image URL" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
+            </label>
+        </p>
+        <button type="submit" class="text-white text-xl font-bold bg-blue-500 hover:bg-blue-300 py-2 px-4 rounded transition-colors duration-300 mb-12 ease-in-out cursor-pointer ">
+            Submit User!
+        </button>
+        <button type="submit" class="text-white text-xl font-bold bg-red-500 hover:bg-red-300 py-2 px-4 rounded transition-colors duration-300 mb-12 ease-in-out cursor-pointer ">
+            Delete User!
+        </button>
+      </form>
+
 {% endblock content %}
