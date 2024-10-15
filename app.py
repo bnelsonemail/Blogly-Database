@@ -109,7 +109,7 @@ def add_user():
         db.session.add(user)
         db.session.commit()
         flash(f"User {first_name} {last_name} added successfully!", 'success')
-        return redirect(f"/{user.id}")
+        return redirect(f"/user/{user.id}")
     except IntegrityError:
         # Rollback the session to avoid partial changes
         db.session.rollback()
@@ -118,7 +118,7 @@ def add_user():
         return redirect('/error')
 
 
-@app.route("/<int:user_id>")
+@app.route("/user/<int:user_id>")
 def show_user(user_id):
     """Show user info on a single page."""
     # user = {
@@ -134,37 +134,62 @@ def show_user(user_id):
     return render_template("detail.html", user=user)
 
 
-@app.route("/<int:user_id>/edit")
+@app.route('/user/<int:user_id>/edit', methods=['GET', 'POST'])
 def edit_user(user_id):
     """Edit user info on a single page."""
     user = User.query.get_or_404(user_id)
 
     if request.method == 'POST':
+        # Get form data
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        image_url = request.form['image_url']
         birthdate_str = request.form['birthdate']
+
+        # Convert birthdate string to date object
         try:
             birthdate = datetime.strptime(birthdate_str, '%Y-%m-%d').date()
         except ValueError:
-            flash('Invalid date format.  Please use YYY-MM-DD.', 'error')
-            return redirect(f"/user/{user_id}/edit")
+            flash('Invalid date format. Please use YYYY-MM-DD.', 'error')
+            return redirect(f'/user/{user_id}/edit')
 
-        # Use the method to upte the user
+        # Use the update method in the User model to update attributes
         user.update(
-            first_name=request.form['first_name'],
-            last_name=request.form['last_name'],
+            first_name=first_name,
+            last_name=last_name,
             birthdate=birthdate,
-            image_url=request.form['image_url']
+            image_url=image_url
         )
 
+        # Commit the changes to the database
         try:
             db.session.commit()
             flash('User updated successfully!', 'success')
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             db.session.rollback()
-            flash('An error occurred.  Please try again.', 'error')
+            flash(f'An error occurred: {e}', 'error')
+            return redirect(f'/user/{user_id}/edit')
 
-    print(user)  # Debugging: print user details to console
-    flash(f"User: {user.first_name} {user.last_name}, ID: {user.id}")
-    return render_template("detail.html", user=user)
+        return redirect(f'/user/{user.id}')
+
+    # Render the edit form with the current user data (GET request)
+    return render_template('edit_user.html', user=user)
+
+
+@app.route('/user/<int:user_id>/delete', methods=['POST'])
+def delete_user(user_id):
+    """Delete the user."""
+    user = User.query.get_or_404(user_id)  # Fetch the user from the database
+
+    try:
+        user.delete()  # Call the delete method in the User model
+        flash(f"User {user.first_name} {user.last_name} deleted successfully!",
+              "success")
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        flash(f"An error occurred: {e}", "error")
+
+    return redirect('/')  # redirect to home after deleting the user
 
 
 if __name__ == '__main__':

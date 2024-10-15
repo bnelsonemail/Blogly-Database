@@ -40,10 +40,20 @@ class User(db.Model):
         except DetachedInstanceError:
             return "<Detached User Error>"
 
-    def update(self, first_name, last_name, birthdate, image_url):
+    def update(self, first_name=None, last_name=None, birthdate=None,
+               image_url=None):
         """Update the user's information."""
         s = self
-        s.first_name = first_name.lower()
-        s.last_name = last_name.lower()
-        s.birthdate = birthdate
-        s.image_url = image_url
+        if first_name:
+            s.first_name = first_name.lower()
+        if last_name:
+            s.last_name = last_name.lower()
+        if birthdate:
+            s.birthdate = birthdate
+        if image_url:
+            s.image_url = image_url
+
+    def delete(self):
+        """Delete the user from the database."""
+        db.session.delete(self)
+        db.session.commit()
