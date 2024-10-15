@@ -6,7 +6,8 @@
 <div class="flex flex-col items-center">
   <h1 class="text-4xl text-black font-bold text-black pt-20 mb-12"><u>User Detail Page</u></h1>
   
-  <h1 class="text-3xl font-bold">{{ user.last_name | title }}, {{ user.first_name | title }}</h1>
+  <!-- <h1 class="text-3xl font-bold">{{ user.last_name | title }}, {{ user.first_name | title }}</h1> -->
+  <h1 class="text-3xl font-bold">{{ user.full_name }}</h1>
   <div class="text-xl">
     <p><b>ID:</b> {{ user.id }}</p>
     <p><b>Birthdate:</b> {{ user.birthdate }}</p>

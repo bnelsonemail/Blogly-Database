@@ -57,3 +57,8 @@ class User(db.Model):
         """Delete the user from the database."""
         db.session.delete(self)
         db.session.commit()
+
+    @property
+    def full_name(self):
+        """Return full name of user."""
+        return f"{self.first_name.capitalize()} {self.last_name.capitalize()}"
