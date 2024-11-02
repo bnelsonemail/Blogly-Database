@@ -120,18 +120,14 @@ def add_user():
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
-    """Show user info on a single page."""
-    # user = {
-    #     'id': user_id,
-    #     'first_name': 'test_firstname',
-    #     'last_name': 'test_lastname',
-    #     'birthdate': '1990-01-01',
-    #     'image_url': 'null'
-    # }
+    """Show user info on a single page, including their posts."""
     user = User.query.get_or_404(user_id)
+    posts = (BlogPost.query
+             .filter_by(user_id=user.id)
+             .all())  # Fetch posts for the user
     print(user)  # Debugging: print user details to console
-    flash(f"User: {user.first_name} {user.last_name}, ID: {user.id}")
-    return render_template("detail.html", user=user)
+    print(posts)  # Debugging: print post details to console
+    return render_template("detail.html", user=user, posts=posts)
 
 
 @app.route('/user/<int:user_id>/edit', methods=['GET', 'POST'])
@@ -198,17 +194,31 @@ def new_post(user_id):
     user = User.query.get_or_404(user_id)
 
     if request.method == 'POST':
-        # Get title and content from the form
-        title = request.form['title']
-        content = request.form['content']
+        title = request.form.get('title')
+        content = request.form.get('content')
 
-        # Create a new blog post
-        post = BlogPost(user_id=user.id, title=title, content=content)
-        db.session.add(post)
-        db.session.commit()
+        if not title or not content:
+            flash("Title and content are required.", "error")
+            return redirect(request.url)
 
-        flash('Post created successfully!', 'success')
-        return redirect(f'/user/{user.id}')
+        try:
+            post = BlogPost(user_id=user.id, title=title, content=content)
+            db.session.add(post)
+            db.session.commit()
+
+            flash('Post created successfully!', 'success')
+            return redirect(f'/user/{user.id}')
+        except IntegrityError as e:
+            db.session.rollback()
+            print(f"Integrity Error: {e}")
+            flash("A database integrity error occurred. Check your data "
+                  "constraints.", "error")
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database Error: {e}")
+            flash("An error occurred while saving the post. Please try again.",
+                  "error")
+        return redirect(request.url)
 
     return render_template('new_post.html', user=user)
 
