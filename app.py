@@ -8,7 +8,7 @@ from flask import Flask, render_template, request, redirect, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from dotenv import load_dotenv
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from models import db, connect_db, User
+from models import db, connect_db, User, BlogPost
 
 
 from config import DevelopmentConfig, ProductionConfig, TestingConfig
@@ -190,6 +190,64 @@ def delete_user(user_id):
         flash(f"An error occurred: {e}", "error")
 
     return redirect('/')  # redirect to home after deleting the user
+
+
+@app.route('/users/<int:user_id>/posts/new', methods=['GET', 'POST'])
+def new_post(user_id):
+    """Show form to create a new post for a user or handle form submission."""
+    user = User.query.get_or_404(user_id)
+
+    if request.method == 'POST':
+        # Get title and content from the form
+        title = request.form['title']
+        content = request.form['content']
+
+        # Create a new blog post
+        post = BlogPost(user_id=user.id, title=title, content=content)
+        db.session.add(post)
+        db.session.commit()
+
+        flash('Post created successfully!', 'success')
+        return redirect(f'/user/{user.id}')
+
+    return render_template('new_post.html', user=user)
+
+
+@app.route('/posts/<int:post_id>')
+def show_post(post_id):
+    """Show a specific post."""
+    post = BlogPost.query.get_or_404(post_id)
+    return render_template('post_detail.html', post=post)
+
+
+@app.route('/posts/<int:post_id>/edit', methods=['GET', 'POST'])
+def edit_post(post_id):
+    """Show form to edit a post or handle edit form submission."""
+    post = BlogPost.query.get_or_404(post_id)
+
+    if request.method == 'POST':
+        # Get title and content from the form
+        post.title = request.form['title']
+        post.content = request.form['content']
+
+        db.session.commit()
+
+        flash('Post updated successfully!', 'success')
+        return redirect(f'/posts/{post.id}')
+
+    return render_template('edit_post.html', post=post)
+
+
+@app.route('/posts/<int:post_id>/delete', methods=['POST'])
+def delete_post(post_id):
+    """Delete a specific post."""
+    post = BlogPost.query.get_or_404(post_id)
+
+    db.session.delete(post)
+    db.session.commit()
+
+    flash('Post deleted successfully!', 'success')
+    return redirect(f'/user/{post.user_id}')
 
 
 if __name__ == '__main__':

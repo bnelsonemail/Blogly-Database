@@ -2,6 +2,7 @@
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm.exc import DetachedInstanceError
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -62,3 +63,29 @@ class User(db.Model):
     def full_name(self):
         """Return full name of user."""
         return f"{self.first_name.capitalize()} {self.last_name.capitalize()}"
+
+    def create_blog_post(self, title, content):
+        """Create a new blog post associated with this user."""
+        post = BlogPost(user_id=self.id, title=title, content=content)
+        db.session.add(post)
+        db.session.commit()
+        return post
+
+
+class BlogPost(db.Model):
+    """BlogPost Class."""
+
+    __tablename__ = "blog_posts"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(
+        db.DateTime, nullable=False, default=datetime.utcnow
+    )
+
+    def __repr__(self):
+        """Show information about blog post."""
+        return (f"<BlogPost id={self.id} title={self.title}"
+                "created_at={self.created_at}>")

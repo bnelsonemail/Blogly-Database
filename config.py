@@ -37,6 +37,11 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     """Testing configuration"""
     TESTING = True
+    # Replace with your test DB URI
+    SQLALCHEMY_DATABASE_URI = 'postgresql:///blogly-test'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    DEBUG_TB_ENABLED = False
+    SECRET_KEY = 'testsecret'
     FLASK_ENV = 'testing'
     DEBUG_TB_HOSTS = 'dont-show-debug-toolbar'
     SQLALCHEMY_ECHO = False  # can set to True if needed in debugging.
