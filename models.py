@@ -87,10 +87,14 @@ class BlogPost(db.Model):
         db.DateTime, nullable=False, default=datetime.utcnow
     )
 
+    # Add the tags relationship to complete the many-to-many setup
+    tags = db.relationship("Tag", secondary="post_tags",
+                           back_populates="posts")
+
     def __repr__(self):
         """Show information about blog post."""
-        return (f"<BlogPost id={self.id} title={self.title}"
-                "created_at={self.created_at}>")
+        return (f"<BlogPost id={self.id} title={self.title} "
+                f"created_at={self.created_at}>")
 
 
 class Tag(db.Model):

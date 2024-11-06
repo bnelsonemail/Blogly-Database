@@ -293,5 +293,38 @@ def delete_post(post_id):
     return redirect(f'/user/{post.user_id}')
 
 
+@app.route('/tags/new', methods=['GET', 'POST'])
+def new_tag():
+    """Show form to create a new tag or handle form submission."""
+    # Replace with logic to get the correct user, if applicable
+    user = User.query.get(1)
+
+    if request.method == 'POST':
+        tag_name = request.form.get('name').strip()
+
+        if not tag_name:
+            flash("Tag name is required.", "error")
+            return redirect(request.url)
+
+        existing_tag = Tag.query.filter_by(name=tag_name).first()
+        if existing_tag:
+            flash("Tag with this name already exists.", "error")
+            return redirect(request.url)
+
+        try:
+            new_tag = Tag(name=tag_name)
+            db.session.add(new_tag)
+            db.session.commit()
+            flash('Tag created successfully!', 'success')
+            return redirect('/tags')
+        except SQLAlchemyError:
+            db.session.rollback()
+            flash("An error occurred while creating the tag. "
+                  "Please try again.", "error")
+            return redirect(request.url)
+
+    return render_template('new_tag.html', user=user)
+
+
 if __name__ == '__main__':
     app.run()
