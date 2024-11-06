@@ -1,8 +1,10 @@
 """Models for Blogly."""
 
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm.exc import DetachedInstanceError
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm.exc import DetachedInstanceError
+
 
 db = SQLAlchemy()
 
@@ -89,3 +91,35 @@ class BlogPost(db.Model):
         """Show information about blog post."""
         return (f"<BlogPost id={self.id} title={self.title}"
                 "created_at={self.created_at}>")
+
+
+class Tag(db.Model):
+    """Tag Class."""
+
+    __tablename__ = "tags"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+
+    # Relationship to access posts for a tag
+    posts = relationship("BlogPost", secondary="post_tags",
+                         back_populates="tags")
+
+    def __repr__(self):
+        """Show information about tag."""
+        return f"<Tag id={self.id} name={self.name}>"
+
+
+class PostTag(db.Model):
+    """Association table for BlogPost and Tag."""
+
+    __tablename__ = "post_tags"
+
+    post_id = db.Column(db.Integer, db.ForeignKey("blog_posts.id"),
+                        primary_key=True, nullable=False)
+    tag_id = db.Column(db.Integer, db.ForeignKey("tags.id"), primary_key=True,
+                       nullable=False)
+
+    def __repr__(self):
+        """Show information about PostTag association."""
+        return f"<PostTag post_id={self.post_id} tag_id={self.tag_id}>"

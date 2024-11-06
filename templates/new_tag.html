@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Tag{% endblock title %}
+
+{% block content %}
+<div class="flex flex-col items-center py-20">
+  <h1 class="text-4xl font-bold text-black mb-8">Create New Tag for {{ user.full_name }}</h1>
+  
+  <form action="/users/{{ user.id }}/posts/new" method="POST" class="w-full max-w-lg">
+    
+    <div class="mb-6">
+      <label for="title" class="block text-gray-700 text-sm font-semibold mb-2">Title</label>
+      <input 
+        type="text" 
+        name="title" 
+        id="title" 
+        class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline" 
+        required 
+        placeholder="Enter tag title"
+      >
+    </div>
+    
+    <div class="mb-6">
+      <label for="tag" class="block text-gray-700 text-sm font-semibold mb-2">Tag Description</label>
+      <textarea 
+        name="tag" 
+        id="tag" 
+        rows="4" 
+        class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline" 
+        required 
+        placeholder="Enter tag description"
+      ></textarea>
+    </div>
+    
+    <div class="flex items-center">
+      <button 
+        type="submit" 
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+      >
+        Create Tag
+      </button>
+      <a href="/user/{{ user.id }}" class="ml-4 text-blue-500 hover:underline">Cancel</a>
+    </div>
+    
+  </form>
+</div>
+{% endblock content %}

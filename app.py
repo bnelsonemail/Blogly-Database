@@ -8,7 +8,7 @@ from flask import Flask, render_template, request, redirect, flash
 from flask_debugtoolbar import DebugToolbarExtension
 from dotenv import load_dotenv
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from models import db, connect_db, User, BlogPost
+from models import db, connect_db, User, BlogPost, Tag
 
 
 from config import DevelopmentConfig, ProductionConfig, TestingConfig
@@ -192,18 +192,30 @@ def delete_user(user_id):
 def new_post(user_id):
     """Show form to create a new post for a user or handle form submission."""
     user = User.query.get_or_404(user_id)
+    tags = Tag.query.all()  # Fetch all tags to populate the dropdown
 
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
+        # Get selected tags from the form
+        selected_tag_ids = request.form.getlist('tags')
 
         if not title or not content:
             flash("Title and content are required.", "error")
             return redirect(request.url)
 
         try:
+            # Create a new post
             post = BlogPost(user_id=user.id, title=title, content=content)
             db.session.add(post)
+
+            # Associate tags with the new post
+            if selected_tag_ids:
+                tags_to_add = (Tag.query.filter(Tag.id.in_(selected_tag_ids))
+                               .all())
+                # Assuming BlogPost has a many-to-many relationship with Tag
+                post.tags.extend(tags_to_add)
+
             db.session.commit()
 
             flash('Post created successfully!', 'success')
@@ -211,22 +223,26 @@ def new_post(user_id):
         except IntegrityError as e:
             db.session.rollback()
             print(f"Integrity Error: {e}")
-            flash("A database integrity error occurred. Check your data "
+            flash("A database integrity error occurred. Check your data"
                   "constraints.", "error")
         except SQLAlchemyError as e:
             db.session.rollback()
             print(f"Database Error: {e}")
             flash("An error occurred while saving the post. Please try again.",
                   "error")
+
         return redirect(request.url)
 
-    return render_template('new_post.html', user=user)
+    # Render the template with the user and available tags
+    return render_template('new_post.html', user=user, tags=tags)
 
 
 @app.route('/posts/<int:post_id>')
 def show_post(post_id):
-    """Show a specific post."""
+    """Show a specific post with its tags."""
     post = BlogPost.query.get_or_404(post_id)
+
+    # The post object should include related tags through the relationship
     return render_template('post_detail.html', post=post)
 
 
@@ -234,29 +250,46 @@ def show_post(post_id):
 def edit_post(post_id):
     """Show form to edit a post or handle edit form submission."""
     post = BlogPost.query.get_or_404(post_id)
+    tags = Tag.query.all()  # Fetch all available tags for the dropdown
 
     if request.method == 'POST':
-        # Get title and content from the form
-        post.title = request.form['title']
-        post.content = request.form['content']
+        # Get title, content, and selected tags from the form
+        post.title = request.form.get('title')
+        post.content = request.form.get('content')
+        selected_tag_ids = request.form.getlist('tags')
 
-        db.session.commit()
+        # Update the tags associated with the post
+        post.tags = Tag.query.filter(Tag.id.in_(selected_tag_ids)).all()
 
-        flash('Post updated successfully!', 'success')
-        return redirect(f'/posts/{post.id}')
+        try:
+            db.session.commit()
+            flash('Post updated successfully!', 'success')
+            return redirect(f'/posts/{post.id}')
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database Error: {e}")
+            flash("An error occurred while saving the post. Please try again.",
+                  "error")
+            return redirect(request.url)
 
-    return render_template('edit_post.html', post=post)
+    return render_template('edit_post.html', post=post, tags=tags)
 
 
 @app.route('/posts/<int:post_id>/delete', methods=['POST'])
 def delete_post(post_id):
-    """Delete a specific post."""
+    """Delete a specific post, including its tag associations."""
     post = BlogPost.query.get_or_404(post_id)
 
-    db.session.delete(post)
-    db.session.commit()
+    try:
+        db.session.delete(post)
+        db.session.commit()
+        flash('Post deleted successfully!', 'success')
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Database Error: {e}")
+        flash("An error occurred while deleting the post. Please try again.",
+              "error")
 
-    flash('Post deleted successfully!', 'success')
     return redirect(f'/user/{post.user_id}')
 
 
