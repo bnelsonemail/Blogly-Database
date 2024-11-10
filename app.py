@@ -293,11 +293,13 @@ def delete_post(post_id):
     return redirect(f'/user/{post.user_id}')
 
 
-@app.route('/tags/new', methods=['GET', 'POST'])
-def new_tag():
-    """Show form to create a new tag or handle form submission."""
-    # Replace with logic to get the correct user, if applicable
-    user = User.query.get(1)
+@app.route('/posts/<int:post_id>/tags/new', methods=['GET', 'POST'])
+def new_tag(post_id):
+    """
+    Show form to create a new tag or handle form submission for a specific post.
+    """
+    # Fetch the post to associate with this tag
+    post = BlogPost.query.get_or_404(post_id)
 
     if request.method == 'POST':
         tag_name = request.form.get('name').strip()
@@ -306,24 +308,34 @@ def new_tag():
             flash("Tag name is required.", "error")
             return redirect(request.url)
 
+        # Check if the tag already exists
         existing_tag = Tag.query.filter_by(name=tag_name).first()
         if existing_tag:
-            flash("Tag with this name already exists.", "error")
-            return redirect(request.url)
+            # If tag already exists, associate it with the post
+            # (if not already associated)
+            if existing_tag not in post.tags:
+                post.tags.append(existing_tag)
+                db.session.commit()
+            flash("Tag associated with the post successfully!", "success")
+            return redirect(f'/posts/{post_id}')
 
+        # Create a new tag and associate it with the post
         try:
             new_tag = Tag(name=tag_name)
+            post.tags.append(new_tag)  # Associate new tag with the post
             db.session.add(new_tag)
             db.session.commit()
-            flash('Tag created successfully!', 'success')
-            return redirect('/tags')
+            flash('Tag created and associated with post successfully!',
+                  'success')
+            return redirect(f'/posts/{post_id}')
         except SQLAlchemyError:
             db.session.rollback()
-            flash("An error occurred while creating the tag. "
-                  "Please try again.", "error")
+            flash("An error occurred while creating the tag. Please try "
+                  "again.", "error")
             return redirect(request.url)
 
-    return render_template('new_tag.html', user=user)
+    # Render the new_tag form with the post context
+    return render_template('new_tag.html', post=post)
 
 
 if __name__ == '__main__':

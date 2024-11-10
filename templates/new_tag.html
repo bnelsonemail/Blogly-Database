@@ -4,34 +4,25 @@
 
 {% block content %}
 <div class="flex flex-col items-center py-20">
-  <h1 class="text-4xl font-bold text-black mb-8">Create New Tag for {{ user.full_name }}</h1>
+  <h1 class="text-4xl font-bold text-black mb-8">Create New Tag for {{ post.title }}</h1>
   
-  <form action="/users/{{ user.id }}/posts/new" method="POST" class="w-full max-w-lg">
+  <!-- Corrected form action to point to the new tag route -->
+  <form action="/posts/{{ post.id }}/tags/new" method="POST" class="w-full max-w-lg">
     
+    <!-- Tag Name Field -->
     <div class="mb-6">
-      <label for="title" class="block text-gray-700 text-sm font-semibold mb-2">Title</label>
+      <label for="name" class="block text-gray-700 text-sm font-semibold mb-2">Tag Name</label>
       <input 
         type="text" 
-        name="title" 
-        id="title" 
+        name="name" 
+        id="name" 
         class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline" 
         required 
-        placeholder="Enter tag title"
+        placeholder="Enter tag name"
       >
     </div>
     
-    <div class="mb-6">
-      <label for="tag" class="block text-gray-700 text-sm font-semibold mb-2">Tag Description</label>
-      <textarea 
-        name="tag" 
-        id="tag" 
-        rows="4" 
-        class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline" 
-        required 
-        placeholder="Enter tag description"
-      ></textarea>
-    </div>
-    
+    <!-- Submit and Cancel Buttons -->
     <div class="flex items-center">
       <button 
         type="submit" 
@@ -39,7 +30,7 @@
       >
         Create Tag
       </button>
-      <a href="/user/{{ user.id }}" class="ml-4 text-blue-500 hover:underline">Cancel</a>
+      <a href="/posts/{{ post.id }}" class="ml-4 text-blue-500 hover:underline">Cancel</a>
     </div>
     
   </form>
