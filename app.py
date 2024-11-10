@@ -190,15 +190,14 @@ def delete_user(user_id):
 
 @app.route('/users/<int:user_id>/posts/new', methods=['GET', 'POST'])
 def new_post(user_id):
-    """Show form to create a new post for a user or handle form submission."""
     user = User.query.get_or_404(user_id)
-    tags = Tag.query.all()  # Fetch all tags to populate the dropdown
+    tags = Tag.query.all()  # Fetch all available tags for selection
 
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
-        # Get selected tags from the form
         selected_tag_ids = request.form.getlist('tags')
+        new_tags_input = request.form.get('new_tags', '').strip()
 
         if not title or not content:
             flash("Title and content are required.", "error")
@@ -209,40 +208,38 @@ def new_post(user_id):
             post = BlogPost(user_id=user.id, title=title, content=content)
             db.session.add(post)
 
-            # Associate tags with the new post
+            # Associate selected tags with the new post
             if selected_tag_ids:
-                tags_to_add = (Tag.query.filter(Tag.id.in_(selected_tag_ids))
-                               .all())
-                # Assuming BlogPost has a many-to-many relationship with Tag
+                tags_to_add = Tag.query.filter(Tag.id.in_(selected_tag_ids)).all()
                 post.tags.extend(tags_to_add)
 
-            db.session.commit()
+            # Process and add new tags
+            if new_tags_input:
+                new_tag_names = [name.strip() for name in new_tags_input.split(',') if name.strip()]
+                for tag_name in new_tag_names:
+                    # Check if the tag already exists
+                    existing_tag = Tag.query.filter_by(name=tag_name).first()
+                    if existing_tag:
+                        post.tags.append(existing_tag)
+                    else:
+                        new_tag = Tag(name=tag_name)
+                        post.tags.append(new_tag)
+                        db.session.add(new_tag)
 
+            db.session.commit()
             flash('Post created successfully!', 'success')
             return redirect(f'/user/{user.id}')
-        except IntegrityError as e:
+        except SQLAlchemyError:
             db.session.rollback()
-            print(f"Integrity Error: {e}")
-            flash("A database integrity error occurred. Check your data"
-                  "constraints.", "error")
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            print(f"Database Error: {e}")
-            flash("An error occurred while saving the post. Please try again.",
-                  "error")
+            flash("An error occurred while creating the post.", "error")
+            return redirect(request.url)
 
-        return redirect(request.url)
-
-    # Render the template with the user and available tags
     return render_template('new_post.html', user=user, tags=tags)
 
 
 @app.route('/posts/<int:post_id>')
 def show_post(post_id):
-    """Show a specific post with its tags."""
     post = BlogPost.query.get_or_404(post_id)
-
-    # The post object should include related tags through the relationship
     return render_template('post_detail.html', post=post)
 
 
@@ -295,10 +292,6 @@ def delete_post(post_id):
 
 @app.route('/posts/<int:post_id>/tags/new', methods=['GET', 'POST'])
 def new_tag(post_id):
-    """
-    Show form to create a new tag or handle form submission for a specific post.
-    """
-    # Fetch the post to associate with this tag
     post = BlogPost.query.get_or_404(post_id)
 
     if request.method == 'POST':
@@ -311,8 +304,6 @@ def new_tag(post_id):
         # Check if the tag already exists
         existing_tag = Tag.query.filter_by(name=tag_name).first()
         if existing_tag:
-            # If tag already exists, associate it with the post
-            # (if not already associated)
             if existing_tag not in post.tags:
                 post.tags.append(existing_tag)
                 db.session.commit()
@@ -322,19 +313,16 @@ def new_tag(post_id):
         # Create a new tag and associate it with the post
         try:
             new_tag = Tag(name=tag_name)
-            post.tags.append(new_tag)  # Associate new tag with the post
+            post.tags.append(new_tag)
             db.session.add(new_tag)
             db.session.commit()
-            flash('Tag created and associated with post successfully!',
-                  'success')
+            flash('Tag created and associated with post successfully!', 'success')
             return redirect(f'/posts/{post_id}')
         except SQLAlchemyError:
             db.session.rollback()
-            flash("An error occurred while creating the tag. Please try "
-                  "again.", "error")
+            flash("An error occurred while creating the tag. Please try again.", "error")
             return redirect(request.url)
 
-    # Render the new_tag form with the post context
     return render_template('new_tag.html', post=post)
 
 

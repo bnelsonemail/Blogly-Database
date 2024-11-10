@@ -32,7 +32,7 @@
     
     <!-- Tag selection dropdown -->
     <div class="mb-4">
-      <label for="tags" class="block text-gray-700 text-sm font-bold mb-2">Tags</label>
+      <label for="tags" class="block text-gray-700 text-sm font-bold mb-2">Select Existing Tags</label>
       <select 
         name="tags" 
         id="tags" 
@@ -44,9 +44,18 @@
         {% endfor %}
       </select>
       <p class="text-xs text-gray-500 mt-2">Hold down the Ctrl (Windows) or Command (Mac) key to select multiple tags.</p>
-      
-      <!-- Link to create a new tag -->
-      <a href="/tags/new" class="text-blue-500 hover:underline mt-2 inline-block">Create New Tag</a>
+    </div>
+
+    <!-- New tag input field -->
+    <div class="mb-4">
+      <label for="new_tags" class="block text-gray-700 text-sm font-bold mb-2">Create New Tags (Comma Separated)</label>
+      <input 
+        type="text" 
+        name="new_tags" 
+        id="new_tags" 
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+        placeholder="Enter tags separated by commas (e.g., 'python, flask, web')"
+      >
     </div>
 
     <!-- Submit and Cancel buttons -->
